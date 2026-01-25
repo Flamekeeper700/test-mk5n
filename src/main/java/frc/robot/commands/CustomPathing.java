@@ -5,13 +5,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-
-import edu.wpi.first.math.util.Units;
 
 import frc.robot.util.GridDistanceProcessing;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -20,87 +17,76 @@ public class CustomPathing extends Command {
 
     private final GridDistanceProcessing gdp = new GridDistanceProcessing();
 
-    private Pose2d currentPose = new Pose2d();
-    private Pose2d targetPose  = new Pose2d();
-
     private final CommandSwerveDrivetrain swerve;
 
     private final SwerveRequest.FieldCentric drive =
         new SwerveRequest.FieldCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-    private final ProfiledPIDController translationController;
-    private final ProfiledPIDController rotationController;
+    /* ------------ Tunables ------------ */
 
-    public CustomPathing(
-        ProfiledPIDController translation,
-        ProfiledPIDController rotation,
-        CommandSwerveDrivetrain drivetrain
-    ) {
-        this.translationController = translation;
-        this.rotationController = rotation;
+    private static final double MAX_SPEED = 4.5;     // m/s
+    private static final double MIN_SPEED = 0.6;     // don’t stall near goal
+    private static final double ROT_KP    = 3.5;     // heading follow
 
-        translationController.setTolerance(Units.inchesToMeters(1.0));
-        rotationController.setTolerance(Units.degreesToRadians(2.0));
-
+    public CustomPathing(CommandSwerveDrivetrain drivetrain) {
         this.swerve = drivetrain;
         addRequirements(drivetrain);
     }
 
     @Override
     public void initialize() {
-        translationController.reset(0.0);
-        rotationController.reset(0.0);
-
         Logger.recordOutput("Pathing/Running", true);
     }
 
     @Override
     public void execute() {
-        Logger.recordOutput("Pathing/ExecuteAlive", true);
-        currentPose = swerve.getState().Pose;
+
+        Pose2d currentPose = swerve.getState().Pose;
         Logger.recordOutput("Pathing/CurrentPose", currentPose);
-        targetPose = gdp.bestAdjacent(currentPose);
+
         int heat = gdp.heatAt(currentPose);
 
-        if (targetPose == null) {
-            Logger.recordOutput("Pathing/TargetValid", false);
-            swerve.setControl(
-                drive.withVelocityX(0).withVelocityY(0).withRotationalRate(0)
-            );
+        if (heat < 0) {
+            stop();
+            Logger.recordOutput("Pathing/Valid", false);
             return;
         }
 
-        Logger.recordOutput("Pathing/TargetValid", true);
-        Logger.recordOutput("Pathing/TargetPose", targetPose);
+        Logger.recordOutput("Pathing/Valid", true);
         Logger.recordOutput("Pathing/Heat", heat);
 
-        // ---- translation control ----
-        Translation2d error =
-            targetPose.getTranslation().minus(currentPose.getTranslation());
+        /* ---------- Flow direction ---------- */
 
-        double distance = error.getNorm();
+        Rotation2d flowHeading = gdp.flowDirection(currentPose);
+        double dirX = Math.cos(flowHeading.getRadians());
+        double dirY = Math.sin(flowHeading.getRadians());
 
-        Translation2d direction =
-            distance > 1e-4 ? error.div(distance) : new Translation2d();
+        Logger.recordOutput("Pathing/FlowHeadingDeg",
+                Math.toDegrees(flowHeading.getRadians()));
 
-        // drive speed toward zero distance
-        double speed = -1 + Math.max(-(heat * .1), -4.5);
+        /* ---------- Speed from heat ---------- */
 
-        double vx = direction.getX() * speed;
-        double vy = direction.getY() * speed;
+        // far from goal = high heat = faster
+        double speed = Math.min(MAX_SPEED,
+                        Math.max(MIN_SPEED, heat * 0.08));
+        speed += 1;
+        speed *= -1;
 
-        // ---- rotation control ----
-        double omega = rotationController.calculate(
-            currentPose.getRotation().getRadians(),
-            targetPose.getRotation().getRadians()
-        );
+        double vx = dirX * speed;
+        double vy = dirY * speed;
+
+        /* ---------- Face direction of travel ---------- */
+
+        double headingError =
+            flowHeading.minus(currentPose.getRotation()).getRadians();
+
+        double omega = headingError * ROT_KP;
 
         Logger.recordOutput("Pathing/Vx", vx);
         Logger.recordOutput("Pathing/Vy", vy);
         Logger.recordOutput("Pathing/Omega", omega);
 
-        // ---- send to drivetrain ----
         swerve.setControl(
             drive.withVelocityX(vx)
                  .withVelocityY(vy)
@@ -108,17 +94,22 @@ public class CustomPathing extends Command {
         );
     }
 
+    private void stop() {
+        swerve.setControl(
+            drive.withVelocityX(0)
+                 .withVelocityY(0)
+                 .withRotationalRate(0)
+        );
+    }
+
     @Override
     public boolean isFinished() {
-        return false; // continuous pathing
+        return false; // continuous path following
     }
 
     @Override
     public void end(boolean interrupted) {
         Logger.recordOutput("Pathing/Running", false);
-
-        swerve.setControl(
-            drive.withVelocityX(0).withVelocityY(0).withRotationalRate(0)
-        );
+        stop();
     }
 }

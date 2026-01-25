@@ -44,16 +44,6 @@ public class RobotContainer {
     private final CommandXboxController joystick = new CommandXboxController(0);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-
-    ProfiledPIDController translationPID =
-        new ProfiledPIDController(2.0, 0.0, 0.1,
-                new TrapezoidProfile.Constraints(3.0, 3.0));
-
-    ProfiledPIDController rotationPID =
-        new ProfiledPIDController(4.0, 0.0, 0.2,
-                new TrapezoidProfile.Constraints(
-                        Units.degreesToRadians(360),
-                        Units.degreesToRadians(720)));
     
     private final GridDistanceProcessing gdp = new GridDistanceProcessing();
 
@@ -95,7 +85,7 @@ public class RobotContainer {
         // Reset the field-centric heading on left bumper press.
         joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
-        joystick.rightBumper().whileTrue(new CustomPathing(translationPID, rotationPID, drivetrain));
+        joystick.rightBumper().whileTrue(new CustomPathing(drivetrain));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
