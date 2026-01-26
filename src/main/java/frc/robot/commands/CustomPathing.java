@@ -13,9 +13,11 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import frc.robot.util.GridDistanceProcessing;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
+import frc.robot.Constants.PathingConstants;
+
 public class CustomPathing extends Command {
 
-    private final GridDistanceProcessing gdp = new GridDistanceProcessing();
+    private final GridDistanceProcessing gdp = new GridDistanceProcessing(PathingConstants.hubMap, PathingConstants.hubAngles);
 
     private final CommandSwerveDrivetrain swerve;
 

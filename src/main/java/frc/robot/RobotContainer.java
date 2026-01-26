@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.math.geometry.Pose2d;
 
 import frc.robot.commands.CustomPathing;
 import frc.robot.generated.TunerConstants;
@@ -45,7 +46,7 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     
-    private final GridDistanceProcessing gdp = new GridDistanceProcessing();
+    private final GridDistanceProcessing gdp = new GridDistanceProcessing(Constants.PathingConstants.hubMap, Constants.PathingConstants.hubAngles);
 
     public RobotContainer() {
         configureBindings();
@@ -74,6 +75,7 @@ public class RobotContainer {
         joystick.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));
+
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
