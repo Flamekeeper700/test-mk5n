@@ -7,6 +7,8 @@ package frc.robot;
 import com.ctre.phoenix6.HootAutoReplay;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -16,10 +18,16 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnField;
+import org.ironmaple.simulation.drivesims.COTS;
+
 public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
 
     private final RobotContainer m_robotContainer;
+    private static SwerveDriveSimulation swerveDriveSimulation;
 
     /* log and replay timestamp and joystick data */
     private final HootAutoReplay m_timeAndJoystickReplay = new HootAutoReplay()
@@ -39,7 +47,38 @@ public class Robot extends LoggedRobot {
 
         Logger.start();
 
+
         m_robotContainer = new RobotContainer();
+
+        SimulatedArena.getInstance();
+/*
+SimulatedArena arena = SimulatedArena.getInstance();
+
+// --- Field + fuel geometry ---
+double fuelDiameter = 0.1524;     // 6 inches in meters
+double spacing = 0.05;            // slight gap to avoid overlap
+
+double rectLength  = 1.826;        // 71.9 in
+double rectWidth = 4.621;        // 181.9 in
+
+// Field center (2026 field is 16.54 x 8.21 m)
+double fieldCenterX = 16.54 / 2.0;
+double fieldCenterY = 8.21  / 2.0;
+
+// Rectangle bottom-left corner
+double startX = fieldCenterX - rectLength / 2.0;
+double startY = fieldCenterY - rectWidth  / 2.0;
+
+// --- Populate fuel ---
+for (double y = startY; y <= startY + rectWidth; y += spacing) {
+    for (double x = startX; x <= startX + rectLength; x += spacing) {
+        arena.addGamePiece(
+            new RebuiltFuelOnField(new Translation2d(x, y))
+        );
+    }
+}
+     */
+
     }
 
     @Override
@@ -100,5 +139,8 @@ public class Robot extends LoggedRobot {
     public void testExit() {}
 
     @Override
-    public void simulationPeriodic() {}
+    public void simulationPeriodic() {
+        SimulatedArena.getInstance().simulationPeriodic();
+        Logger.recordOutput("FieldSimulation/Fuel", SimulatedArena.getInstance().getGamePiecesArrayByType("Fuel"));
+    }
 }

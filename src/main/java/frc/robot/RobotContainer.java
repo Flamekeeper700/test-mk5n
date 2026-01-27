@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.math.geometry.Pose2d;
-
+import frc.robot.Constants.PathingConstants;
 import frc.robot.commands.CustomPathing;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -46,7 +46,12 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     
-    private final GridDistanceProcessing gdp = new GridDistanceProcessing(Constants.PathingConstants.hubMap, Constants.PathingConstants.hubAngles);
+    private final GridDistanceProcessing gdp = new GridDistanceProcessing(
+        PathingConstants.map,
+        PathingConstants.flowX,
+        PathingConstants.flowY,
+        PathingConstants.MAP_LENGTH,
+        PathingConstants.MAP_WIDTH);
 
     public RobotContainer() {
         configureBindings();
@@ -75,6 +80,7 @@ public class RobotContainer {
         joystick.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));
+        joystick.x().onTrue(Commands.runOnce(() -> drivetrain.resetPose(drivetrain.getState().Pose)));
 
 
         // Run SysId routines when holding back/start and X/Y.
@@ -93,7 +99,6 @@ public class RobotContainer {
     }
 
     public void periodic() {
-        Logger.recordOutput("Test/desired pose", gdp.bestAdjacent(drivetrain.getState().Pose));
     }
 
     public Command getAutonomousCommand() {
