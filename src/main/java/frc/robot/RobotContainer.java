@@ -80,6 +80,7 @@ public class RobotContainer {
         joystick.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));
+        
         joystick.x().onTrue(Commands.runOnce(() -> drivetrain.resetPose(drivetrain.getState().Pose)));
 
 

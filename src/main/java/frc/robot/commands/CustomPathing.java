@@ -6,6 +6,7 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.counter.UpDownCounter;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -72,7 +73,6 @@ public class CustomPathing extends Command {
             desiredHeading.minus(currentPose.getRotation()).getRadians();
 
         double omega = headingError * ROT_KP;
-
         swerve.setControl(
             drive.withVelocityX(vx)
                  .withVelocityY(vy)
