@@ -35,6 +35,11 @@ public class CustomPathing extends Command {
     private static final double MAX_SPEED = 4.5;
     private static final double MIN_SPEED = 1.6;
     private static final double ROT_KP    = 3.5;
+    private double vx = 0;
+    private double vy = 0;
+    double speedDecay = .7;
+    double maxVectorMagnitude = speedDecay / (1 - speedDecay);
+    double speedModifier = (1 / maxVectorMagnitude);
 
     public CustomPathing(CommandSwerveDrivetrain drivetrain) {
         this.swerve = drivetrain;
@@ -47,10 +52,13 @@ public class CustomPathing extends Command {
         Pose2d currentPose = swerve.getState().Pose;
 
         int heat = gdp.heatAt(currentPose);
+        
+        /* 
         if (heat < 0) {
             stop();
             return;
         }
+        */
 
         /* ---------- Flow vector ---------- */
 
@@ -63,8 +71,10 @@ public class CustomPathing extends Command {
         double speed = Math.min(MAX_SPEED,
                         Math.max(MIN_SPEED, heat * 0.08));
 
-        double vx = dirX * -speed;
-        double vy = dirY * -speed;
+        vx += dirX * -speed;
+        vy += dirY * -speed;
+        vx *= speedDecay;
+        vy *= speedDecay;
 
         /* ---------- Face direction of travel ---------- */
 
@@ -74,9 +84,9 @@ public class CustomPathing extends Command {
 
         double omega = headingError * ROT_KP;
         swerve.setControl(
-            drive.withVelocityX(vx)
-                 .withVelocityY(vy)
-                 .withRotationalRate(omega)
+            drive.withVelocityX(vx * speedModifier)
+                 .withVelocityY(vy * speedModifier)
+                 .withRotationalRate(0)
         );
     }
 
@@ -86,6 +96,8 @@ public class CustomPathing extends Command {
                  .withVelocityY(0)
                  .withRotationalRate(0)
         );
+        vx = 0;
+        vy = 0;
     }
 
     @Override

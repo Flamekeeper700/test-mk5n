@@ -111,9 +111,9 @@ public class Robot extends LoggedRobot {
     @Override
     public void simulationInit() {
         SimulatedArena.getInstance();
+/* 
 
 SimulatedArena arena = SimulatedArena.getInstance();
-
 // --- Field + fuel geometry ---
 double fuelDiameter = 0.1524;     // 6 inches in meters
 double spacing = 0.05;            // slight gap to avoid overlap
@@ -137,6 +137,7 @@ for (double y = startY; y <= startY + rectWidth; y += spacing) {
         );
     }
 }
+    */
      
     }
 
