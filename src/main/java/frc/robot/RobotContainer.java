@@ -24,9 +24,11 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.Constants.PathingConstants;
+import frc.robot.commands.ClimberSetPos1;
 import frc.robot.commands.CustomPathing;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.climber.Climber;
 import frc.robot.util.GridDistanceProcessing;
 
 public class RobotContainer {
@@ -45,6 +47,8 @@ public class RobotContainer {
     private final CommandXboxController joystick = new CommandXboxController(0);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+
+    private final Climber climber = new Climber();
     
     private final GridDistanceProcessing gdp = new GridDistanceProcessing(
         PathingConstants.map,
@@ -68,33 +72,15 @@ public class RobotContainer {
                     .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
-
-        // Idle while the robot is disabled. This ensures the configured
-        // neutral mode is applied to the drive motors while disabled.
-        final var idle = new SwerveRequest.Idle();
-        RobotModeTriggers.disabled().whileTrue(
-            drivetrain.applyRequest(() -> idle).ignoringDisable(true)
-        );
-
-        joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        joystick.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
-        ));
         
         joystick.x().onTrue(Commands.runOnce(() -> drivetrain.resetPose(drivetrain.getState().Pose)));
 
-
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-        // Reset the field-centric heading on left bumper press.
-        joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        joystick.y().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         joystick.rightBumper().whileTrue(new CustomPathing(drivetrain));
+
+        joystick.povUp().onTrue(new ClimberSetPos1(climber));
+        joystick.povDown().onTrue(new ClimberSetPos1(climber));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

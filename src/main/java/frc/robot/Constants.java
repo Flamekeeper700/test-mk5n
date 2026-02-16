@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.util.Units;
 
 public class Constants {
     public static class PathingConstants {
@@ -110,5 +111,35 @@ public static double[] flowY = new double[]{
 
 public static int MAP_LENGTH = 66;
 public static int MAP_WIDTH = 32;
+    }
+
+  public static class ClimberConstants {
+      public static final int kMotorID = 0;
+      public static final int kCurrentLimit = 50;
+
+      public static final double kP = 2.15;
+      public static final double kI = 0;
+      public static final double kD = 0;
+
+      public static final double kS = 0.0; // volts (V)
+      public static final double kG = 0.13; // volts (V)
+      public static final double kV = 190.97; // volt per velocity (V/(m/s))
+      public static final double kA = 0.02; // volt per acceleration (V/(m/s²))
+
+      public static final double kGearing = 125.0;
+      public static final double kDrumRadius = Units.inchesToMeters(2.0);
+      public static final double kCarriageMass = 50.0; // kg
+
+      public static final double liftHeightLow = .2286;
+      public static final double liftHeightHigh = .38;
+
+      // Encoder is reset to measure 0 at the bottom, so minimum height is 0.
+      public static final double kMinHeight = 0.0;
+      public static final double kMaxHeight = .381;
+
+      // distance per pulse = (distance per revolution) / (pulses per revolution)
+      //  = (Pi * D) / ppr
+      public static final double kEncoderDistPerPulse =
+      2.0 * Math.PI * kDrumRadius / 4096;
     }
 }

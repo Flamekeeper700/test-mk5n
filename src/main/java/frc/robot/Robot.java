@@ -146,4 +146,8 @@ for (double y = startY; y <= startY + rectWidth; y += spacing) {
         SimulatedArena.getInstance().simulationPeriodic();
         Logger.recordOutput("FieldSimulation/Fuel", SimulatedArena.getInstance().getGamePiecesArrayByType("Fuel"));
     }
+
+    public static boolean Real() {
+        return isReal();
+    }
 }
