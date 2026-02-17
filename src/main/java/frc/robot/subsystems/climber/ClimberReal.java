@@ -10,99 +10,74 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.ClimberConstants;
+import frc.robot.Constants.ClimberConstants;;
 
 public class ClimberReal implements ClimberIO {
 
     private final SparkMax motor;
-    private final RelativeEncoder encoder;
-    private final PIDController pid;
-    private final ElevatorFeedforward feedforward;
+    
+    private final RelativeEncoder encoder;  
+    private final PIDController pid;  
 
-    public ClimberReal() {
+    public ClimberReal () {
         motor = new SparkMax(0, MotorType.kBrushless);
-        motor.setCANTimeout(250);
 
+        motor.setCANTimeout(250);
         SparkMaxConfig motorConfig = new SparkMaxConfig();
-        motorConfig.voltageCompensation(12.0);
+        motorConfig.voltageCompensation(10);
         motorConfig.smartCurrentLimit(ClimberConstants.kCurrentLimit);
         motorConfig.idleMode(IdleMode.kBrake);
-
-        motor.configure(
-            motorConfig,
-            ResetMode.kResetSafeParameters,
-            PersistMode.kPersistParameters
-        );
+        motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         encoder = motor.getEncoder();
-
-        pid = new PIDController(
-            ClimberConstants.kP,
-            ClimberConstants.kI,
-            ClimberConstants.kD
-        );
-        pid.setTolerance(0.05);
-
-        feedforward = new ElevatorFeedforward(
-            ClimberConstants.kS,
-            ClimberConstants.kG,
-            ClimberConstants.kV,
-            ClimberConstants.kA
-        );
+        pid = new PIDController(ClimberConstants.kP, ClimberConstants.kI, ClimberConstants.kD);
     }
 
     @Override
-    public void run(double speed) {
-        motor.set(MathUtil.clamp(speed, -1.0, 1.0));
+    public void run(double speed){
+        motor.set(speed);
     }
-
     @Override
-    public Trigger atHeight(double heightMeters, double toleranceMeters) {
-        return new Trigger(() ->
-            MathUtil.isNear(
-                heightMeters,
-                getHeightMeters(),
-                toleranceMeters
-            )
-        );
+    public Trigger atHeight(double height, double tolerance)    {
+        return new Trigger(() -> MathUtil.isNear(height,
+                                                getHeightMeters(),
+                                                tolerance));
     }
-
     @Override
+    // Returns elevator height in inches
     public double getHeight() {
         return encoder.getPosition();
     }
-
     @Override
-    public double getHeightMeters() {
-        return encoder.getPosition()
-            * ClimberConstants.kEncoderDistPerPulse;
+    public double getHeightMeters(){
+
+        return (encoder.getPosition() * ClimberConstants.kEncoderDistPerPulse);
     }
+    @Override
+    public void setPosition(double targetHeight) {
+        double pidOutput = pid.calculate(getHeight(), targetHeight);
+        
+        // Add gravity compensation
+        // The sign is positive because we need to work against gravity
+        // You might need to flip the sign depending on your motor polarity
+        
+        // Clamp the output to valid range
+        double motorOutput = pidOutput; // Add g comp once we know
+
+        motorOutput = Math.min(Math.max(motorOutput, -1.0), 1.0);
+        
+        motor.set(motorOutput);  
+    }
+
+    @Override 
+    public void periodic() {}
 
     @Override
     public double getVelocityMetersPerSec() {
-        return encoder.getVelocity()
-            * ClimberConstants.kEncoderDistPerPulse / 60.0;
+        return 0.0;
     }
 
-    @Override
-    public void setPosition(double targetHeightMeters) {
-        double pidOut = pid.calculate(
-            getHeightMeters(),
-            targetHeightMeters
-        );
-
-        double ffVolts = feedforward.calculate(
-            getVelocityMetersPerSec()
-        );
-
-        double output = pidOut + (ffVolts / 12.0);
-        motor.set(MathUtil.clamp(output, -1.0, 1.0));
-    }
-
-    @Override
-    public void periodic() {
-
-    }
 }

@@ -117,14 +117,9 @@ public static int MAP_WIDTH = 32;
       public static final int kMotorID = 0;
       public static final int kCurrentLimit = 50;
 
-      public static final double kP = 2.15;
+      public static final double kP = 32;
       public static final double kI = 0;
       public static final double kD = 0;
-
-      public static final double kS = 0.0; // volts (V)
-      public static final double kG = 0.13; // volts (V)
-      public static final double kV = 190.97; // volt per velocity (V/(m/s))
-      public static final double kA = 0.02; // volt per acceleration (V/(m/s²))
 
       public static final double kGearing = 125.0;
       public static final double kDrumRadius = Units.inchesToMeters(2.0);
@@ -141,5 +136,17 @@ public static int MAP_WIDTH = 32;
       //  = (Pi * D) / ppr
       public static final double kEncoderDistPerPulse =
       2.0 * Math.PI * kDrumRadius / 4096;
+    }
+
+    public static class ShooterConstants {
+      public static final int kLeftMotorID = 50;
+      public static final int kRightMotorID = 51;
+
+
+      public static final double kS = 0.0; // V
+      public static final double kV = 0.39; // V/RPM
+      public static final double kA = 0.0; // V/(RPM/s)
+
+      public static final double kMOI = 0.0; // V/(RPM/s)
     }
 }
