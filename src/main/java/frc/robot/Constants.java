@@ -147,6 +147,6 @@ public static int MAP_WIDTH = 32;
       public static final double kV = 0.39; // V/RPM
       public static final double kA = 0.0; // V/(RPM/s)
 
-      public static final double kMOI = 0.0; // V/(RPM/s)
+      public static final double kMOI = 12.0; // V/(RPM/s)
     }
 }

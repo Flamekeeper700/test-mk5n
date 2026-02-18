@@ -8,10 +8,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-/**
- * Shooter subsystem with two independent shooters (LEFT / RIGHT).
- * Matches the Climber subsystem structure.
- */
+import org.littletonrobotics.junction.Logger;
+
+
 public class Shooter extends SubsystemBase {
 
     private final ShooterIO io;
@@ -81,6 +80,10 @@ public class Shooter extends SubsystemBase {
 
         double leftRPM = Math.max(0.0, getRPM(ShooterSide.LEFT));
         double rightRPM = Math.max(0.0, getRPM(ShooterSide.RIGHT));
+
+        Logger.recordOutput("/Shooter/Left RPM", leftRPM);
+        Logger.recordOutput("/Shooter/Right RPM", rightRPM);
+
 
         leftShooter.setLength(0.1 + leftRPM / 8000.0);
         rightShooter.setLength(0.1 + rightRPM / 8000.0);

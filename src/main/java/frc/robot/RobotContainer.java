@@ -93,10 +93,8 @@ public class RobotContainer {
 
         shooter.setDefaultCommand(
             new ShooterRightRun(shooter, () -> joystick.getRightTriggerAxis())
-        );
-        shooter.setDefaultCommand(
-            new ShooterLeftRun(shooter, () -> joystick.getLeftTriggerAxis())
-        );
+            .alongWith(new ShooterLeftRun(shooter, () -> joystick.getLeftTriggerAxis())));
+            
     }
 
     public void periodic() {
