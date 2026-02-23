@@ -2,11 +2,8 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.counter.UpDownCounter;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -53,13 +50,6 @@ public class CustomPathing extends Command {
 
         int heat = gdp.heatAt(currentPose);
         
-        /* 
-        if (heat < 0) {
-            stop();
-            return;
-        }
-        */
-
         /* ---------- Flow vector ---------- */
 
         double[] flow = gdp.flowVector(currentPose);
@@ -90,7 +80,8 @@ public class CustomPathing extends Command {
         );
     }
 
-    private void stop() {
+    @Override
+    public void end(boolean interrupted) {
         swerve.setControl(
             drive.withVelocityX(0)
                  .withVelocityY(0)

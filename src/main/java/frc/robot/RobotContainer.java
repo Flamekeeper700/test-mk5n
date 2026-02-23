@@ -27,6 +27,7 @@ import frc.robot.Constants.PathingConstants;
 import frc.robot.commands.ClimberSetPos1;
 import frc.robot.commands.ClimberSetPos0;
 import frc.robot.commands.CustomPathing;
+import frc.robot.commands.DoubleShooterLR;
 import frc.robot.commands.ShooterLeftRun;
 import frc.robot.commands.ShooterRightRun;
 import frc.robot.generated.TunerConstants;
@@ -89,11 +90,12 @@ public class RobotContainer {
         joystick.povUp().onTrue(new ClimberSetPos1(climber));
         joystick.povDown().onTrue(new ClimberSetPos0(climber));
 
+        
+        shooter.setDefaultCommand(
+            new DoubleShooterLR(shooter, () -> joystick.getLeftTriggerAxis(), () -> joystick.getRightTriggerAxis()));
+
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        shooter.setDefaultCommand(
-            new ShooterRightRun(shooter, () -> joystick.getRightTriggerAxis())
-            .alongWith(new ShooterLeftRun(shooter, () -> joystick.getLeftTriggerAxis())));
             
     }
 

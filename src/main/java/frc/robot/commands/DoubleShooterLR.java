@@ -6,14 +6,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterSide;
 
-public class ShooterRightRun extends Command {
+public class DoubleShooterLR extends Command {
 
   private final Shooter shooter;
-  private final DoubleSupplier input;
+  private final DoubleSupplier leftInput;
+  private final DoubleSupplier rightInput;
 
-  public ShooterRightRun(Shooter shooter, DoubleSupplier controllerInput) {
+
+  public DoubleShooterLR(Shooter shooter, DoubleSupplier L_Input, DoubleSupplier R_Input) {
     this.shooter = shooter;
-    this.input = controllerInput;
+    this.leftInput = L_Input;
+    this.rightInput = R_Input;
+
     addRequirements(shooter);
   }
 
@@ -22,12 +26,16 @@ public class ShooterRightRun extends Command {
 
   @Override
   public void execute() {
-    double rpm = 5000.0 * input.getAsDouble();
-    shooter.setRPM(ShooterSide.RIGHT, rpm);
+    double leftRPM = 5000.0 * leftInput.getAsDouble();
+    double rightRPM = 5000.0 * rightInput.getAsDouble();
+
+    shooter.setRPM(ShooterSide.LEFT, leftRPM);
+    shooter.setRPM(ShooterSide.RIGHT, rightRPM);
   }
 
   @Override
   public void end(boolean interrupted) {
+    shooter.stop(ShooterSide.LEFT);
     shooter.stop(ShooterSide.RIGHT);
   }
 
