@@ -28,11 +28,16 @@ import frc.robot.commands.ClimberSetPos1;
 import frc.robot.commands.ClimberSetPos0;
 import frc.robot.commands.CustomPathing;
 import frc.robot.commands.DoubleShooterLR;
+import frc.robot.commands.IntakeIn;
+import frc.robot.commands.IntakeOut;
 import frc.robot.commands.ShooterLeftRun;
 import frc.robot.commands.ShooterRightRun;
+import frc.robot.commands.StorageRun;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.StorageSub;
 import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.util.GridDistanceProcessing;
 import frc.robot.subsystems.shooter.Shooter;
 
@@ -57,7 +62,10 @@ public class RobotContainer {
 
     private final Shooter shooter = new Shooter();
 
-    
+    private final Intake intake = new Intake();
+
+    private final StorageSub storageSub = new StorageSub();
+
     private final GridDistanceProcessing gdp = new GridDistanceProcessing(
         PathingConstants.map,
         PathingConstants.flowX,
@@ -89,6 +97,11 @@ public class RobotContainer {
 
         joystick.povUp().onTrue(new ClimberSetPos1(climber));
         joystick.povDown().onTrue(new ClimberSetPos0(climber));
+
+        joystick.povLeft().onTrue(new IntakeIn(intake));
+        joystick.povRight().onTrue(new IntakeOut(intake));
+
+        joystick.leftBumper().whileTrue(new StorageRun(storageSub));
 
         
         shooter.setDefaultCommand(

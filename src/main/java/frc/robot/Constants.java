@@ -149,4 +149,17 @@ public static int MAP_WIDTH = 32;
 
       public static final double kMOI = 12.0; // V/(RPM/s)
     }
+
+    public static class IntakeConstants {
+      public static final int kLeftMotorID = 1;
+      public static final int kRightMotorID = 2;
+      public static final int kRollerMotorID = 3;
+
+      public static final double kGearing = 23;
+
+    }
+
+    public static class StorageConstants {
+      public static final int motorID = 5;
+    }
 }

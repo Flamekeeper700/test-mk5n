@@ -69,12 +69,12 @@ public class ShootToHub extends Command {
         /* 3. GET BASE TRAJECTORY (STATIONARY ROBOT)                 */
         /* ---------------------------------------------------------- */
 
-        double hoodAngleDeg = trajHelper.getHoodAngleFor(distance);
+        double hoodAngleDeg = 0; //trajHelper.getHoodAngleFor(distance);
         double hoodAngleRad = Math.toRadians(hoodAngleDeg);
 
         // This must return EXIT VELOCITY in m/s
-        double baseExitVelocity =
-            trajHelper.getExitVelocityFor(distance, hoodAngleDeg);
+        double baseExitVelocity = 0;
+            //trajHelper.getExitVelocityFor(distance, hoodAngleDeg);
 
         /* ---------------------------------------------------------- */
         /* 4. ROBOT MOTION COMPENSATION                               */
@@ -118,7 +118,7 @@ public class ShootToHub extends Command {
         /* 7. CONVERT TO RPM AND FIRE                                 */
         /* ---------------------------------------------------------- */
 
-        double newRPM = trajHelper.getRPMFor(distance);
+        double newRPM = 0; //trajHelper.getRPMFor(distance);
 
 
         shooter.setRPM(ShooterSide.LEFT, newRPM);
