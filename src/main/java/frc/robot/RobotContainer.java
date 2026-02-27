@@ -58,7 +58,7 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    private final Climber climber = new Climber();
+    //private final Climber climber = new Climber();
 
     private final Shooter shooter = new Shooter();
 
@@ -95,8 +95,8 @@ public class RobotContainer {
 
         joystick.rightBumper().whileTrue(new CustomPathing(drivetrain));
 
-        joystick.povUp().onTrue(new ClimberSetPos1(climber));
-        joystick.povDown().onTrue(new ClimberSetPos0(climber));
+        //joystick.povUp().onTrue(new ClimberSetPos1(climber));
+        //joystick.povDown().onTrue(new ClimberSetPos0(climber));
 
         joystick.povLeft().onTrue(new IntakeIn(intake));
         joystick.povRight().onTrue(new IntakeOut(intake));
